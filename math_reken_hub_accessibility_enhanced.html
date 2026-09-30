@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math & Reken Hub - Accessibility Enhanced</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        lexend: ['Lexend', 'sans-serif'],
+                        dyslexic: ['OpenDyslexic', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- MathJax for rendering math equations (Polyfill script removed for security) -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts & OpenDyslexic CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/open-dyslexic-styling@1.0.2/open-dyslexic/style.css" rel="stylesheet">
+    
+    <style>
+        /* Typography Mode Definitions */
+        body.font-inter { font-family: 'Inter', sans-serif !important; }
+        body.font-lexend { font-family: 'Lexend', sans-serif !important; }
+        body.font-dyslexic { font-family: 'OpenDyslexic', 'Inter', sans-serif !important; }
+
+        /* OLED Pitch-Black Dark Mode Overrides */
+        html.oled-dark,
+        html.oled-dark body {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        html.oled-dark .bg-white,
+        html.oled-dark .bg-slate-800,
+        html.oled-dark .bg-slate-900,
+        html.oled-dark .bg-gray-50,
+        html.oled-dark .bg-gray-100 {
+            background-color: #000000 !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        html.oled-dark input {
+            background-color: #050505 !important;
+            border-color: #475569 !important;
+            color: #ffffff !important;
+        }
+
+        /* Enhanced Keyboard Focus Indicators for Accessibility */
+        button:focus-visible, 
+        a:focus-visible, 
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid #6366f1 !important;
+            outline-offset: 3px !important;
+        }
+
+        /* Animations */
+        @keyframes pulse-correct {
+            0% { border-color: rgba(34, 197, 94, 0.9); box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+            100% { border-color: inherit; box-shadow: none; }
+        }
+        @keyframes pulse-wrong {
+            0% { border-color: rgba(239, 68, 68, 0.9); box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+            100% { border-color: inherit; box-shadow: none; }
+        }
+        .correct-flash { animation: pulse-correct 0.4s ease-out; }
+        .wrong-flash { animation: pulse-wrong 0.4s ease-out; }
+    </style>
+</head>
+<body class="font-inter bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+    <!-- HEADER NAV WITH ACCESSIBILITY CONTROLS -->
+    <header class="w-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50 transition-colors">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            
+            <button onclick="resetToHub()" class="flex items-center gap-3 group text-left focus:outline-none" aria-label="Terug naar Home">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+                    ∑
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">Math & Reken Hub</h1>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">VWO & HAVO Oefenplatform</p>
+                </div>
+            </button>
+
+            <!-- ACCESSIBILITY TOOLBAR -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="resetToHub()" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 transition">
+                    🏠 Home
+                </button>
+
+                <!-- Font Switcher Control (Option 5A) -->
+                <div class="flex items-center bg-gray-100 dark:bg-slate-700 rounded-xl p-1 text-xs font-bold border border-gray-200 dark:border-slate-600">
+                    <span class="px-2 text-gray-500 dark:text-slate-400 font-normal hidden sm:inline" id="font-label">Lettertype:</span>
+                    <button onclick="setFont('inter')" id="font-btn-inter" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 shadow-sm transition">Standard</button>
+                    <button onclick="setFont('lexend')" id="font-btn-lexend" class="px-2.5 py-1 rounded-lg transition opacity-70 hover:opacity-100">Lexend</button>
+                    <button onclick="setFont('dyslexic')" id="font-btn-dyslexic" class="px-2.5 py-1 rounded-lg transition opacity-70 hover:opacity-100" title="OpenDyslexic Font">♿ Dyslexic</button>
+                </div>
+
+                <!-- Theme Switcher Control (Option 5C) -->
+                <div class="flex items-center bg-gray-100 dark:bg-slate-700 rounded-xl p-1 text-xs font-bold border border-gray-200 dark:border-slate-600">
+                    <button onclick="setTheme('light')" id="theme-btn-light" class="px-2 py-1 rounded-lg transition" title="Licht Thema">☀️</button>
+                    <button onclick="setTheme('dark')" id="theme-btn-dark" class="px-2 py-1 rounded-lg bg-white dark:bg-slate-800 shadow-sm transition" title="Donker Thema">🌙</button>
+                    <button onclick="setTheme('oled')" id="theme-btn-oled" class="px-2 py-1 rounded-lg transition" title="OLED Pitch Black High-Contrast">🖤 OLED</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-5xl mx-auto w-full px-4 py-6 flex-1">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: HUB / GAME SELECTION -->
+        <!-- ========================================== -->
+        <section id="hub-view" class="space-y-8 py-4">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/80 rounded-full border border-blue-200 dark:border-blue-800">
+                    Oefen & Verbeter
+                </span>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Kies je rekenuitdaging</h2>
+                <p class="text-gray-600 dark:text-slate-400 text-sm md:text-base">
+                    In 5 minuten je rekenvaardigheid, inzicht en reactiesnelheid verbeteren met direct resultaat!
+                </p>
+            </div>
+
+            <!-- Game Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                <!-- Game 1: RekenSnelheid -->
+                <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700/80 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center text-3xl shadow-sm">
+                            ⚡
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">RekenSnelheid</h3>
+                            <p class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">Snelheid & Accuraatheid</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-slate-300">
+                            Los sommen op tegen de klok en vergelijk je snelheid met de menselijke normaalverdeling.
+                        </p>
+                    </div>
+                    <button onclick="setupGame('rekensnelheid')" class="mt-6 w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg transition">
+                        Speel RekenSnelheid
+                    </button>
+                </div>
+
+                <!-- Game 2: Math Peeler -->
+                <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700/80 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-500 flex items-center justify-center text-3xl shadow-sm">
+                            🧅
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Math Peeler</h3>
+                            <p class="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-0.5">Algebraïsch Inzicht</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-slate-300">
+                            Pel ingewikkelde formules van buiten naar binnen af. Inclusief een ♾️ Infinite Mode!
+                        </p>
+                    </div>
+                    <button onclick="setupGame('peeler')" class="mt-6 w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition">
+                        Speel Math Peeler
+                    </button>
+                </div>
+
+                <!-- Game 3: Verhaaltjessommen -->
+                <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700/80 rounded-3xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center text-3xl shadow-sm">
+                            📖
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Verhaaltjessommen</h3>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">Contextueel Rekenen</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-slate-300">
+                            Vertaal tekst en verhalen naar wiskundige oplossingen. Ideaal voor de onderbouw van het VO!
+                        </p>
+                    </div>
+                    <button onclick="setupGame('verhaaltjes')" class="mt-6 w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition">
+                        Speel Verhaaltjes
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: SETUP / DIFFICULTY SELECTION -->
+        <!-- ========================================== -->
+        <section id="setup-view" class="hidden max-w-2xl mx-auto py-8">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-slate-700 text-center space-y-6">
+                <div id="setup-icon" class="text-6xl">🎮</div>
+                <div>
+                    <h2 id="setup-title" class="text-3xl font-extrabold">Kies je niveau</h2>
+                    <p id="setup-subtitle" class="text-sm text-gray-500 dark:text-slate-400 mt-1">Selecteer de gewenste moeilijkheidsgraad om te starten.</p>
+                </div>
+                
+                <!-- Infinite Mode High Score Display (Math Peeler) -->
+                <div id="peeler-highscore-container" class="hidden p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 transition">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 block mb-1">High Score Infinite Mode</span>
+                    <span id="peeler-highscore-val" class="text-3xl md:text-4xl font-black font-mono tracking-wider">0</span>
+                </div>
+
+                <!-- Level Buttons Grid -->
+                <div class="flex flex-col md:flex-row gap-4 items-stretch">
+                    <!-- Standard 3 Levels Grid -->
+                    <div id="setup-buttons-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3 flex-1">
+                        <button onclick="startGame(1)" class="w-full p-4 rounded-2xl border-2 border-green-500 text-green-700 dark:text-green-400 font-bold hover:bg-green-50 dark:hover:bg-green-900/20 transition flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg">Niveau 1</span>
+                            <span class="text-xs font-normal opacity-80">Makkelijk</span>
+                        </button>
+                        <button onclick="startGame(2)" class="w-full p-4 rounded-2xl border-2 border-yellow-500 text-yellow-700 dark:text-yellow-400 font-bold hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg">Niveau 2</span>
+                            <span class="text-xs font-normal opacity-80">Gemiddeld</span>
+                        </button>
+                        <button onclick="startGame(3)" class="w-full p-4 rounded-2xl border-2 border-red-500 text-red-700 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 transition flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg">Niveau 3</span>
+                            <span class="text-xs font-normal opacity-80">Moeilijk</span>
+                        </button>
+                    </div>
+
+                    <!-- 4th Option: Infinite Mode -->
+                    <button id="btn-infinite-mode" onclick="startGame('infinite')" class="hidden w-full md:w-1/3 p-4 rounded-2xl border-2 border-purple-500 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 text-purple-700 dark:text-purple-300 font-bold hover:from-purple-500/20 hover:to-indigo-500/20 transition flex flex-col justify-center items-center text-center gap-1 shadow-md">
+                        <span class="text-3xl">♾️</span>
+                        <span class="text-lg leading-tight">Infinite<br>Mode</span>
+                    </button>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="resetToHub()" class="text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 underline">
+                        ← Terug naar overzicht
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 1: REKENSNELHEID -->
+        <!-- ========================================== -->
+        <section id="game1-view" class="hidden max-w-2xl mx-auto py-4 space-y-6">
+            <!-- Game 1 Header -->
+            <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-md">
+                <span id="g1-progress-text" class="font-bold text-sm text-gray-500 dark:text-slate-400">Som 1 van 10</span>
+                <span id="g1-timer-text" class="font-mono font-bold text-xl text-amber-500">0.0s</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div id="g1-progress-bar" class="bg-amber-500 h-full w-0 transition-all duration-200"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="g1-card" class="bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-3xl p-8 text-center space-y-6 shadow-xl transition-all">
+                <div id="g1-label" class="text-xs uppercase tracking-widest font-bold text-amber-500">OPTELLEN</div>
+                <div id="g1-problem" class="text-4xl md:text-5xl font-black font-mono tracking-wide">
+                    --
+                </div>
+
+                <form onsubmit="submitG1Answer(event)" class="pt-2">
+                    <input type="number" id="g1-input" placeholder="Vul ? in" autocomplete="off" step="any"
+                           class="w-full text-center bg-gray-50 dark:bg-slate-900 border-2 border-gray-300 dark:border-slate-700 text-2xl font-bold rounded-2xl py-3 px-4 focus:outline-none focus:border-amber-500 transition" />
+                    <button type="submit" class="hidden">Verstuur</button>
+                </form>
+            </div>
+
+            <div class="text-center text-xs text-gray-400">
+                Druk op <kbd class="px-2 py-1 bg-gray-200 dark:bg-slate-700 rounded font-mono">Enter</kbd> om te bevestigen
+            </div>
+
+            <!-- Game 1 Results Screen -->
+            <div id="g1-results" class="hidden bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+                <div class="text-center space-y-1">
+                    <h3 class="text-3xl font-extrabold text-amber-500">Analyse & Resultaten</h3>
+                    <p class="text-xs text-gray-500 dark:text-slate-400">Jouw prestatie vergeleken met de menselijke normaalverdeling.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="g1-tiers-container"></div>
+
+                <div class="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 text-center space-y-3">
+                    <div class="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-slate-400 px-1">
+                        <span>Menselijke Normaalverdeling</span>
+                        <span id="g1-percentile-badge" class="text-amber-500 font-bold">Gemiddeld</span>
+                    </div>
+                    <div class="relative w-full h-44">
+                        <canvas id="bellCurveCanvas" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                    <div class="p-3 bg-gray-100 dark:bg-slate-900 rounded-xl">
+                        <div class="text-xs text-gray-500">Totaal Tijd</div>
+                        <div id="g1-stat-total" class="text-lg font-bold">0s</div>
+                    </div>
+                    <div class="p-3 bg-gray-100 dark:bg-slate-900 rounded-xl">
+                        <div class="text-xs text-gray-500">Tijd per Som</div>
+                        <div id="g1-stat-avg" class="text-lg font-bold text-amber-500">0s</div>
+                    </div>
+                    <div class="p-3 bg-gray-100 dark:bg-slate-900 rounded-xl">
+                        <div class="text-xs text-gray-500">Goed / Fout</div>
+                        <div id="g1-stat-score" class="text-lg font-bold text-green-500">0 / 0</div>
+                    </div>
+                    <div class="p-3 bg-gray-100 dark:bg-slate-900 rounded-xl">
+                        <div class="text-xs text-gray-500">Nauwkeurigheid</div>
+                        <div id="g1-stat-accuracy" class="text-lg font-bold text-purple-500">100%</div>
+                    </div>
+                </div>
+
+                <button onclick="setupGame('rekensnelheid')" class="w-full py-3.5 bg-amber-500 text-white font-bold rounded-xl shadow-lg hover:bg-amber-600 transition">
+                    Opnieuw Spelen
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 2: MATH PEELER -->
+        <!-- ========================================== -->
+        <section id="game2-view" class="hidden max-w-4xl mx-auto flex flex-col min-h-[70vh]">
+            <!-- Header bar -->
+            <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md border border-gray-200 dark:border-slate-700 mb-4">
+                <div class="font-bold flex items-center gap-2">
+                    <span id="g2-score-label">Lagen te gaan:</span>
+                    <span id="g2-score" class="text-purple-600 dark:text-purple-400 font-mono text-2xl font-black px-2 py-0.5 rounded">0</span>
+                </div>
+                <div class="font-mono font-bold text-xl text-purple-500" id="g2-timer">0.0s</div>
+            </div>
+
+            <!-- Peeler Equation Card -->
+            <div id="g2-card" class="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-3xl p-6 flex flex-col items-center justify-center shadow-xl relative min-h-[260px] overflow-hidden">
+                <div id="g2-feedback" class="absolute top-4 font-bold text-sm md:text-base"></div>
+                <div id="g2-equation" class="text-center w-full px-4 text-3xl">Loading...</div>
+            </div>
+
+            <!-- Onscreen Hotkey Controls -->
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-4">
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('s')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Som (+)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">S</kbd>
+                </button>
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('m')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Min (-)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">M</kbd>
+                </button>
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('k')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Keer (*)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">K</kbd>
+                </button>
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('d')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Delen (/)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">D</kbd>
+                </button>
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('p')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Macht (^)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">P</kbd>
+                </button>
+                <button class="peel-btn bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-3 rounded-2xl flex flex-col items-center hover:border-purple-500 shadow-sm transition active:scale-95" onclick="handleG2Input('r')">
+                    <span class="text-xs text-gray-500 dark:text-slate-400 mb-1">Wortel (√)</span>
+                    <kbd class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-lg font-mono font-bold">R</kbd>
+                </button>
+            </div>
+
+            <!-- Peeler Overlay Result -->
+            <div id="g2-results" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-3xl p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
+                    <h3 id="g2-res-title" class="text-4xl font-black text-purple-500">Opgelost!</h3>
+                    <p id="g2-res-timer-box" class="text-lg">Tijd: <span id="g2-res-tijd" class="font-bold">0s</span></p>
+                    <div id="g2-res-score-box" class="hidden text-center">
+                        <div class="text-xs text-gray-500 uppercase tracking-widest font-semibold">Behaalde Infinite Score</div>
+                        <div id="g2-res-score-val" class="text-5xl font-black font-mono my-3">0</div>
+                    </div>
+                    <button onclick="setupGame('peeler')" class="w-full py-3.5 bg-purple-600 text-white rounded-xl font-bold shadow-lg hover:bg-purple-700 transition">
+                        Opnieuw Spelen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- GAME 3: VERHAALTJESSOMMEN -->
+        <!-- ========================================== -->
+        <section id="game3-view" class="hidden max-w-2xl mx-auto py-4 space-y-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-md">
+                <span id="g3-progress-text" class="font-bold text-sm text-gray-500 dark:text-slate-400">Vraag 1 van 5</span>
+                <span id="g3-timer-text" class="font-mono font-bold text-xl text-emerald-500">0.0s</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div id="g3-progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-200"></div>
+            </div>
+
+            <!-- Word Problem Card -->
+            <div id="g3-card" class="bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl transition-all">
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 pb-3">
+                    <span id="g3-topic-badge" class="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-lg">
+                        Context
+                    </span>
+                    <button onclick="showG3Hint()" class="text-xs font-semibold text-amber-500 hover:underline flex items-center gap-1">
+                        💡 Hint nodig?
+                    </button>
+                </div>
+
+                <div id="g3-story-text" class="text-base md:text-lg leading-relaxed font-medium">
+                    --
+                </div>
+
+                <div id="g3-hint-box" class="hidden p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300">
+                    💡 <span id="g3-hint-text">--</span>
+                </div>
+
+                <form onsubmit="submitG3Answer(event)" class="space-y-4">
+                    <div class="flex gap-2">
+                        <input type="number" id="g3-input" placeholder="Jouw antwoord..." step="any" autocomplete="off"
+                               class="flex-1 bg-gray-50 dark:bg-slate-900 border-2 border-gray-300 dark:border-slate-700 text-xl font-bold rounded-2xl py-3 px-4 focus:outline-none focus:border-emerald-500 transition" />
+                        <span id="g3-unit-label" class="inline-flex items-center px-4 font-semibold text-sm bg-gray-100 dark:bg-slate-700 rounded-2xl text-gray-500">
+                            eenheid
+                        </span>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition">
+                        Controleer Antwoord
+                    </button>
+                </form>
+
+                <!-- Feedback Message -->
+                <div id="g3-feedback-box" class="hidden p-4 rounded-2xl space-y-2 border">
+                    <div id="g3-feedback-title" class="font-bold text-base"></div>
+                    <p id="g3-feedback-explanation" class="text-xs md:text-sm text-gray-600 dark:text-slate-300 leading-normal"></p>
+                    <button onclick="nextG3Question()" class="mt-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-bold text-xs">
+                        Volgende Vraag →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game 3 Results Screen -->
+            <div id="g3-results" class="hidden bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+                <div class="text-5xl">🎉</div>
+                <h3 class="text-3xl font-extrabold text-emerald-500">Ronde Voltooid!</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700">
+                        <span class="text-xs text-gray-500 block mb-1">Score</span>
+                        <span id="g3-res-score" class="text-3xl font-black text-emerald-500">0 / 5</span>
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700">
+                        <span class="text-xs text-gray-500 block mb-1">Totale Tijd</span>
+                        <span id="g3-res-time" class="text-3xl font-black text-blue-500">0s</span>
+                    </div>
+                </div>
+
+                <button onclick="setupGame('verhaaltjes')" class="w-full py-3.5 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition">
+                    Opnieuw Spelen
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full border-t border-gray-200 dark:border-slate-800 py-4 text-center text-xs text-gray-500 dark:text-slate-400">
+        Math & Reken Hub &copy; 2026 • Onderwijs Wiskunde & Rekenen • Accessible VO Platform
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ========================================== -->
+    <script>
+        // --- GLOBAL APP STATE ---
+        let currentGame = null; // 'rekensnelheid', 'peeler', 'verhaaltjes'
+        let currentLevel = 1;    // 1, 2, 3, or 'infinite'
+
+        // --- ACCESSIBILITY STATE & MANAGERS ---
+        // Feature 5A: OpenDyslexic / Lexend Font Switcher
+        function setFont(fontName) {
+            const body = document.body;
+            body.classList.remove('font-inter', 'font-lexend', 'font-dyslexic');
+            body.classList.add(`font-${fontName}`);
+            
+            // Update active state styling on font buttons
+            ['inter', 'lexend', 'dyslexic'].forEach(f => {
+                const btn = document.getElementById(`font-btn-${f}`);
+                if (btn) {
+                    if (f === fontName) {
+                        btn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'opacity-100');
+                        btn.classList.remove('opacity-70');
+                    } else {
+                        btn.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'opacity-100');
+                        btn.classList.add('opacity-70');
+                    }
+                }
+            });
+
+            localStorage.setItem('math_hub_font', fontName);
+        }
+
+        // Feature 5C: OLED Pitch-Black Dark Mode + Light & Slate Dark
+        function setTheme(themeMode) {
+            const html = document.documentElement;
+            html.classList.remove('dark', 'oled-dark');
+
+            if (themeMode === 'dark') {
+                html.classList.add('dark');
+            } else if (themeMode === 'oled') {
+                html.classList.add('dark', 'oled-dark');
+            }
+
+            // Update button states
+            ['light', 'dark', 'oled'].forEach(t => {
+                const btn = document.getElementById(`theme-btn-${t}`);
+                if (btn) {
+                    if (t === themeMode) {
+                        btn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm');
+                    } else {
+                        btn.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm');
+                    }
+                }
+            });
+
+            localStorage.setItem('math_hub_theme', themeMode);
+        }
+
+        // Initialize stored preferences on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedFont = localStorage.getItem('math_hub_font') || 'inter';
+            const savedTheme = localStorage.getItem('math_hub_theme') || 'dark';
+            setFont(savedFont);
+            setTheme(savedTheme);
+        });
+
+        function showView(viewId) {
+            const views = ['hub-view', 'setup-view', 'game1-view', 'game2-view', 'game3-view'];
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(viewId);
+            if (target) target.classList.remove('hidden');
+        }
+
+        function resetToHub() {
+            clearInterval(g1TimerInt);
+            clearInterval(g2TimerInt);
+            clearInterval(g3TimerInt);
+            showView('hub-view');
+        }
+
+        function setupGame(gameId) {
+            currentGame = gameId;
+            let icon = '🎮', title = 'Reken Hub';
+
+            if (gameId === 'rekensnelheid') { icon = '⚡'; title = 'RekenSnelheid'; }
+            if (gameId === 'peeler') { icon = '🧅'; title = 'Math Peeler'; }
+            if (gameId === 'verhaaltjes') { icon = '📖'; title = 'Verhaaltjessommen'; }
+
+            document.getElementById('setup-icon').innerText = icon;
+            document.getElementById('setup-title').innerText = title;
+
+            const infBtn = document.getElementById('btn-infinite-mode');
+            const hsContainer = document.getElementById('peeler-highscore-container');
+
+            if (gameId === 'peeler') {
+                infBtn.classList.remove('hidden');
+                hsContainer.classList.remove('hidden');
+                updatePeelerHighScoreDisplay();
+            } else {
+                infBtn.classList.add('hidden');
+                hsContainer.classList.add('hidden');
+            }
+
+            showView('setup-view');
+        }
+
+        function startGame(level) {
+            currentLevel = level;
+            if (currentGame === 'rekensnelheid') initGame1();
+            if (currentGame === 'peeler') initGame2();
+            if (currentGame === 'verhaaltjes') initGame3();
+        }
+
+        function getScoreColor(score) {
+            if (score < 2) {
+                return { color: '#a855f7', invColor: '#1e1b4b' };
+            }
+            
+            let p = 1;
+            while (p * 2 <= score) {
+                p *= 2;
+            }
+
+            const mod = 16777215n;
+            let valBig = 1n;
+            let base = 2n;
+            let exp = BigInt(p);
+            while (exp > 0n) {
+                if (exp % 2n === 1n) valBig = (valBig * base) % mod;
+                base = (base * base) % mod;
+                exp = exp / 2n;
+            }
+            const val = Number(valBig);
+
+            const hex = val.toString(16).padStart(6, '0');
+            const invVal = 0xFFFFFF - val;
+            const invHex = invVal.toString(16).padStart(6, '0');
+
+            return {
+                color: `#${hex}`,
+                invColor: `#${invHex}`
+            };
+        }
+
+        function applyScoreStyle(element, score) {
+            const { color, invColor } = getScoreColor(score);
+            element.style.color = color;
+            element.style.textShadow = `-1px -1px 0 ${invColor}, 1px -1px 0 ${invColor}, -1px 1px 0 ${invColor}, 1px 1px 0 ${invColor}, 0 0 12px ${color}`;
+            element.style.webkitTextStroke = `1px ${invColor}`;
+        }
+
+        function updatePeelerHighScoreDisplay() {
+            const hs = parseInt(localStorage.getItem('peeler_infinite_highscore') || '0', 10);
+            const hsValEl = document.getElementById('peeler-highscore-val');
+            hsValEl.innerText = hs;
+            applyScoreStyle(hsValEl, hs);
+        }
+
+        function flashElement(el, type) {
+            el.classList.remove('correct-flash', 'wrong-flash');
+            void el.offsetWidth;
+            el.classList.add(type === 'correct' ? 'correct-flash' : 'wrong-flash');
+        }
+
+        // ==========================================
+        // GAME 1: REKENSNELHEID LOGIC
+        // ==========================================
+        let g1TotalQuestions = 10;
+        let g1CurrentIndex = 0;
+        let g1Correct = 0, g1Wrong = 0;
+        let g1Questions = [];
+        let g1StartTime = 0, g1TimerInt = null;
+
+        function initGame1() {
+            showView('game1-view');
+            document.getElementById('g1-results').classList.add('hidden');
+            
+            g1TotalQuestions = currentLevel === 1 ? 5 : currentLevel === 2 ? 10 : 15;
+            g1CurrentIndex = 0;
+            g1Correct = 0;
+            g1Wrong = 0;
+            g1Questions = generateG1Questions(g1TotalQuestions, currentLevel);
+
+            g1StartTime = Date.now();
+            clearInterval(g1TimerInt);
+            g1TimerInt = setInterval(() => {
+                const elapsed = (Date.now() - g1StartTime) / 1000;
+                document.getElementById('g1-timer-text').innerText = elapsed.toFixed(1) + 's';
+            }, 100);
+
+            showG1Question();
+        }
+
+        function generateG1Questions(count, level) {
+            const list = [];
+            for (let i = 0; i < count; i++) {
+                let maxNum = level === 1 ? 20 : level === 2 ? 50 : 100;
+                let a = Math.floor(Math.random() * maxNum) + 1;
+                let b = Math.floor(Math.random() * (level === 1 ? 12 : 25)) + 1;
+                let opType = Math.floor(Math.random() * (level === 1 ? 2 : 4));
+
+                if (opType === 0) {
+                    list.push({ text: `${a} + ${b} = ?`, answer: a + b, label: 'Optellen' });
+                } else if (opType === 1) {
+                    let maxA = Math.max(a, b), minB = Math.min(a, b);
+                    list.push({ text: `${maxA} - ${minB} = ?`, answer: maxA - minB, label: 'Aftrekken' });
+                } else if (opType === 2) {
+                    let multA = Math.floor(Math.random() * 12) + 2;
+                    let multB = Math.floor(Math.random() * 12) + 2;
+                    list.push({ text: `${multA} × ${multB} = ?`, answer: multA * multB, label: 'Vermenigvuldigen' });
+                } else {
+                    let base = Math.floor(Math.random() * 8) + 2;
+                    let exp = 2;
+                    list.push({ text: `${base}² = ?`, answer: Math.pow(base, exp), label: 'Kwadraten' });
+                }
+            }
+            return list;
+        }
+
+        function showG1Question() {
+            const q = g1Questions[g1CurrentIndex];
+            document.getElementById('g1-progress-text').innerText = `Som ${g1CurrentIndex + 1} van ${g1TotalQuestions}`;
+            document.getElementById('g1-progress-bar').style.width = `${(g1CurrentIndex / g1TotalQuestions) * 100}%`;
+            document.getElementById('g1-label').innerText = q.label;
+            document.getElementById('g1-problem').innerText = q.text;
+
+            const input = document.getElementById('g1-input');
+            input.value = '';
+            input.focus();
+        }
+
+        function submitG1Answer(e) {
+            e.preventDefault();
+            const input = document.getElementById('g1-input');
+            const val = parseFloat(input.value.trim());
+            if (isNaN(val)) return;
+
+            const q = g1Questions[g1CurrentIndex];
+            const card = document.getElementById('g1-card');
+
+            if (Math.abs(val - q.answer) < 0.01) {
+                g1Correct++;
+                flashElement(card, 'correct');
+            } else {
+                g1Wrong++;
+                flashElement(card, 'wrong');
+            }
+
+            g1CurrentIndex++;
+            if (g1CurrentIndex < g1TotalQuestions) {
+                showG1Question();
+            } else {
+                endG1();
+            }
+        }
+
+        function endG1() {
+            clearInterval(g1TimerInt);
+            const totalTime = (Date.now() - g1StartTime) / 1000;
+            const avgTime = totalTime / g1TotalQuestions;
+            const accuracy = Math.round((g1Correct / g1TotalQuestions) * 100);
+
+            document.getElementById('g1-stat-total').innerText = totalTime.toFixed(1) + 's';
+            document.getElementById('g1-stat-avg').innerText = avgTime.toFixed(2) + 's';
+            document.getElementById('g1-stat-score').innerText = `${g1Correct} / ${g1Wrong}`;
+            document.getElementById('g1-stat-accuracy').innerText = `${accuracy}%`;
+
+            renderBellCurve(avgTime);
+            document.getElementById('g1-results').classList.remove('hidden');
+        }
+
+        function renderBellCurve(userAvg) {
+            const canvas = document.getElementById('bellCurveCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const width = rect.width, height = rect.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const mean = 4.0, stdDev = 1.2;
+            const minX = 0.5, maxX = 7.5;
+            const gaussian = x => (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+
+            const padding = 20;
+            const cWidth = width - padding * 2, cHeight = height - padding * 2;
+            const maxG = gaussian(mean);
+
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            for (let px = 0; px <= cWidth; px++) {
+                const xVal = minX + (px / cWidth) * (maxX - minX);
+                const py = (height - padding) - (gaussian(xVal) / maxG) * cHeight;
+                ctx.lineTo(padding + px, py);
+            }
+            ctx.lineTo(width - padding, height - padding);
+            ctx.closePath();
+
+            const grad = ctx.createLinearGradient(0, 0, width, 0);
+            grad.addColorStop(0, 'rgba(245, 158, 11, 0.4)');
+            grad.addColorStop(1, 'rgba(239, 68, 68, 0.2)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.stroke();
+
+            const clamped = Math.max(minX, Math.min(maxX, userAvg));
+            const userPx = padding + ((clamped - minX) / (maxX - minX)) * cWidth;
+            const userPy = (height - padding) - (gaussian(clamped) / maxG) * cHeight;
+
+            ctx.beginPath();
+            ctx.arc(userPx, userPy, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
+        }
+
+        // ==========================================
+        // GAME 2: MATH PEELER LOGIC
+        // ==========================================
+        const PEEL_OPS = [
+            { key: 's', op: '+' },
+            { key: 'm', op: '-' },
+            { key: 'k', op: '*' },
+            { key: 'd', op: '/' }
+        ];
+        const PEEL_OPS_HARD = [...PEEL_OPS, { key: 'p', op: '^' }, { key: 'r', op: 'sqrt' }];
+        const PEEL_VARS = ['a','b','c','x','y','z'];
+
+        let g2Stack = [];
+        let g2StartTime = 0, g2TimerInt = null;
+        let g2IsPlaying = false;
+        let g2InfiniteScore = 0;
+
+        function renderG2Equation() {
+            let texStr = (currentLevel === 'infinite') ? 'Q' : 'x';
+
+            for (let i = 0; i < g2Stack.length; i++) {
+                const item = g2Stack[i];
+                const key = item.key;
+                const v = item.var;
+
+                if (key === 's') texStr = `\\left(${texStr} + ${v}\\right)`;
+                else if (key === 'm') texStr = `\\left(${texStr} - ${v}\\right)`;
+                else if (key === 'k') texStr = `\\left(${texStr} \\cdot ${v}\\right)`;
+                else if (key === 'd') texStr = `\\frac{${texStr}}{${v}}`;
+                else if (key === 'p') texStr = `{\\left(${texStr}\\right)}^{${v}}`;
+                else if (key === 'r') texStr = `\\sqrt[${v}]{${texStr}}`;
+            }
+
+            const container = document.getElementById('g2-equation');
+            let currentLen = g2Stack.length;
+            let scaleFactor = 1.8 + (12 - currentLen) * 0.22;
+            if (scaleFactor > 4.2) scaleFactor = 4.2;
+
+            container.style.fontSize = `${scaleFactor}rem`;
+            container.innerHTML = `\\[${texStr}\\]`;
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetPromise([container]).catch(err => console.log(err));
+            }
+        }
+
+        function initGame2() {
+            showView('game2-view');
+            document.getElementById('g2-results').classList.add('hidden');
+            g2IsPlaying = true;
+
+            const isInfinite = (currentLevel === 'infinite');
+            const scoreLabel = document.getElementById('g2-score-label');
+            const scoreValEl = document.getElementById('g2-score');
+
+            if (isInfinite) {
+                g2InfiniteScore = 0;
+                scoreLabel.innerText = "Infinite Score:";
+                scoreValEl.innerText = "0";
+                applyScoreStyle(scoreValEl, 0);
+
+                g2Stack = [];
+                for (let i = 0; i < 5; i++) {
+                    let op = PEEL_OPS_HARD[Math.floor(Math.random() * PEEL_OPS_HARD.length)];
+                    g2Stack.push({ key: op.key, var: PEEL_VARS[Math.floor(Math.random() * PEEL_VARS.length)] });
+                }
+            } else {
+                scoreLabel.innerText = "Lagen te gaan:";
+                scoreValEl.style.color = '';
+                scoreValEl.style.textShadow = '';
+                scoreValEl.style.webkitTextStroke = '';
+
+                let layers = currentLevel === 1 ? 3 : currentLevel === 2 ? 6 : 10;
+                let opsPool = currentLevel === 1 ? PEEL_OPS : PEEL_OPS_HARD;
+
+                g2Stack = [];
+                for (let i = 0; i < layers; i++) {
+                    let op = opsPool[Math.floor(Math.random() * opsPool.length)];
+                    g2Stack.push({ key: op.key, var: PEEL_VARS[Math.floor(Math.random() * PEEL_VARS.length)] });
+                }
+                scoreValEl.innerText = g2Stack.length;
+            }
+
+            document.getElementById('g2-feedback').innerText = '';
+            g2StartTime = Date.now();
+            clearInterval(g2TimerInt);
+            g2TimerInt = setInterval(() => {
+                document.getElementById('g2-timer').innerText = ((Date.now() - g2StartTime) / 1000).toFixed(1) + 's';
+            }, 100);
+
+            renderG2Equation();
+
+            window.removeEventListener('keydown', g2KeyHandler);
+            window.addEventListener('keydown', g2KeyHandler);
+        }
+
+        function g2KeyHandler(e) {
+            handleG2Input(e.key);
+        }
+
+        function handleG2Input(keyStr) {
+            if (!g2IsPlaying || g2Stack.length === 0) return;
+            const k = keyStr.toLowerCase();
+            const valid = ['s', 'm', 'k', 'd', 'p', 'r'];
+            if (!valid.includes(k)) return;
+
+            const outer = g2Stack[g2Stack.length - 1];
+            const fb = document.getElementById('g2-feedback');
+            const card = document.getElementById('g2-card');
+            const isInfinite = (currentLevel === 'infinite');
+
+            if (k === outer.key) {
+                g2Stack.pop();
+
+                if (isInfinite) {
+                    g2InfiniteScore++;
+                    const scoreValEl = document.getElementById('g2-score');
+                    scoreValEl.innerText = g2InfiniteScore;
+                    applyScoreStyle(scoreValEl, g2InfiniteScore);
+
+                    let op = PEEL_OPS_HARD[Math.floor(Math.random() * PEEL_OPS_HARD.length)];
+                    g2Stack.unshift({ key: op.key, var: PEEL_VARS[Math.floor(Math.random() * PEEL_VARS.length)] });
+
+                    fb.innerText = "+1 Score!";
+                    fb.className = "absolute top-4 font-bold text-sm text-green-500";
+                    flashElement(card, 'correct');
+                    renderG2Equation();
+                } else {
+                    document.getElementById('g2-score').innerText = g2Stack.length;
+                    fb.innerText = "Correct! Laag verwijderd.";
+                    fb.className = "absolute top-4 font-bold text-sm text-green-500";
+                    flashElement(card, 'correct');
+
+                    if (g2Stack.length === 0) {
+                        endG2();
+                    } else {
+                        renderG2Equation();
+                    }
+                }
+            } else {
+                if (isInfinite) {
+                    fb.innerText = "Fout! Game Over.";
+                    fb.className = "absolute top-4 font-bold text-sm text-red-500";
+                    flashElement(card, 'wrong');
+                    endG2Infinite();
+                } else {
+                    fb.innerText = "Fout! Verkeerde bewerking.";
+                    fb.className = "absolute top-4 font-bold text-sm text-red-500";
+                    flashElement(card, 'wrong');
+                }
+            }
+        }
+
+        function endG2() {
+            g2IsPlaying = false;
+            clearInterval(g2TimerInt);
+            document.getElementById('g2-res-title').innerText = "Opgelost!";
+            document.getElementById('g2-res-timer-box').classList.remove('hidden');
+            document.getElementById('g2-res-score-box').classList.add('hidden');
+
+            setTimeout(() => {
+                document.getElementById('g2-results').classList.remove('hidden');
+                document.getElementById('g2-res-tijd').innerText = ((Date.now() - g2StartTime) / 1000).toFixed(2) + 's';
+            }, 300);
+        }
+
+        function endG2Infinite() {
+            g2IsPlaying = false;
+            clearInterval(g2TimerInt);
+
+            const oldHs = parseInt(localStorage.getItem('peeler_infinite_highscore') || '0', 10);
+            let isNewHs = false;
+            if (g2InfiniteScore > oldHs) {
+                localStorage.setItem('peeler_infinite_highscore', g2InfiniteScore.toString());
+                isNewHs = true;
+            }
+
+            document.getElementById('g2-res-title').innerText = isNewHs ? "🏆 Nieuwe High Score!" : "Game Over!";
+            document.getElementById('g2-res-timer-box').classList.add('hidden');
+
+            const scoreBox = document.getElementById('g2-res-score-box');
+            scoreBox.classList.remove('hidden');
+
+            const scoreValEl = document.getElementById('g2-res-score-val');
+            scoreValEl.innerText = g2InfiniteScore;
+            applyScoreStyle(scoreValEl, g2InfiniteScore);
+
+            setTimeout(() => {
+                document.getElementById('g2-results').classList.remove('hidden');
+            }, 300);
+        }
+
+        // ==========================================
+        // GAME 3: VERHAALTJESSOMMEN LOGIC
+        // ==========================================
+        const G3_BANK = {
+            1: [
+                {
+                    story: "Een jas kost €80. Tijdens de uitverkoop krijg je 25% korting. Hoeveel euro moet je nu betalen voor de jas?",
+                    answer: 60, unit: "euro", hint: "Bereken eerst 25% van 80 (80 delen door 4) en trek dat af van 80.",
+                    explanation: "25% van €80 = €20. Dus de jas kost €80 - €20 = €60."
+                },
+                {
+                    story: "Een taartrecept voor 4 personen heeft 200 gram suiker nodig. Je wilt taart maken voor 10 personen. Hoeveel gram suiker heb je nodig?",
+                    answer: 500, unit: "gram", hint: "Bereken hoeveel suiker er per persoon nodig is (200 / 4) en vermenigvuldigen met 10.",
+                    explanation: "Per persoon: 200 / 4 = 50 gram. Voor 10 personen: 50 × 10 = 500 gram."
+                },
+                {
+                    story: "Op een school met 400 leerlingen komt 60% op de fiets. Hoeveel leerlingen komen er op de fiets?",
+                    answer: 240, unit: "leerlingen", hint: "10% van 400 is 40. Vermenigvuldig 40 met 6 om 60% te berekenen.",
+                    explanation: "10% = 40. 60% = 6 × 40 = 240 leerlingen."
+                }
+            ],
+            2: [
+                {
+                    story: "Sanne fietst met een gemiddelde snelheid van 18 km/u. Hoeveel kilometer legt zij af in 40 minuten?",
+                    answer: 12, unit: "km", hint: "40 minuten is 2/3 van een uur. Vermenigvuldig 18 met (40 / 60).",
+                    explanation: "40 min = 2/3 uur. Afstand = 18 × (2/3) = 12 km."
+                },
+                {
+                    story: "Een rechthoekig schoolplein van 25 meter lang en 16 meter breed wordt opnieuw betegeld. Tegels kosten €10 per m². Wat zijn de totale tegelskosten?",
+                    answer: 4000, unit: "euro", hint: "Bereken eerst de oppervlakte (lengte × breedte) en vermenigvuldig met de prijs per m².",
+                    explanation: "Oppervlakte = 25 × 16 = 400 m². Totale kosten = 400 × 10 = €4000."
+                },
+                {
+                    story: "Een aquarium is 80 cm lang, 50 cm breed en 40 cm hoog. Hoeveel liter water past er in dit aquarium?",
+                    answer: 160, unit: "liter", hint: "Inhoud = lengte × breedte × hoogte in dm. (1 dm³ = 1 liter). 80cm = 8dm.",
+                    explanation: "8 dm × 5 dm × 4 dm = 160 dm³ = 160 liter."
+                }
+            ],
+            3: [
+                {
+                    story: "Abonnement A kost €15 per maand plus €0,10 per MB. Abonnement B kost €25 per maand met onbeperkt internet. Bij hoeveel MB zijn beide abonnementen precies even duur?",
+                    answer: 100, unit: "MB", hint: "Stel de vergelijking op: 15 + 0,10 × MB = 25.",
+                    explanation: "15 + 0,10 × MB = 25  ➜  0,10 × MB = 10  ➜  MB = 100."
+                },
+                {
+                    story: "Daan is 3 jaar ouder dan Sophie. Samen zijn zij 31 jaar oud. Hoe oud is Daan?",
+                    answer: 17, unit: "jaar", hint: "Als Sophie x jaar is, is Daan (x + 3). x + (x + 3) = 31.",
+                    explanation: "2x + 3 = 31 ➜ 2x = 28 ➜ x = 14 (Sophie). Daan = 14 + 3 = 17 jaar."
+                },
+                {
+                    story: "Een winkelier verhoogt de prijs van een laptop met 20%. Een maand later geeft hij 20% korting op de nieuwe prijs. De originele prijs was €500. Wat is de eindprijs?",
+                    answer: 480, unit: "euro", hint: "Bereken eerst +20% van 500, daarna -20% van die nieuwe waarde.",
+                    explanation: "500 + 20% = €600. Korting 20% van 600 = €120. Eindprijs = 600 - 120 = €480."
+                }
+            ]
+        };
+
+        let g3Index = 0;
+        let g3Questions = [];
+        let g3Score = 0;
+        let g3StartTime = 0, g3TimerInt = null;
+
+        function initGame3() {
+            showView('game3-view');
+            document.getElementById('g3-results').classList.add('hidden');
+            document.getElementById('g3-card').classList.remove('hidden');
+
+            g3Index = 0;
+            g3Score = 0;
+            g3Questions = G3_BANK[currentLevel] || G3_BANK[1];
+
+            g3StartTime = Date.now();
+            clearInterval(g3TimerInt);
+            g3TimerInt = setInterval(() => {
+                document.getElementById('g3-timer-text').innerText = ((Date.now() - g3StartTime) / 1000).toFixed(1) + 's';
+            }, 100);
+
+            showG3Question();
+        }
+
+        function showG3Question() {
+            const q = g3Questions[g3Index];
+            document.getElementById('g3-progress-text').innerText = `Vraag ${g3Index + 1} van ${g3Questions.length}`;
+            document.getElementById('g3-progress-bar').style.width = `${(g3Index / g3Questions.length) * 100}%`;
+            document.getElementById('g3-story-text').innerText = q.story;
+            document.getElementById('g3-unit-label').innerText = q.unit;
+            document.getElementById('g3-hint-text').innerText = q.hint;
+
+            document.getElementById('g3-hint-box').classList.add('hidden');
+            document.getElementById('g3-feedback-box').classList.add('hidden');
+            
+            const input = document.getElementById('g3-input');
+            input.value = '';
+            input.disabled = false;
+            input.focus();
+        }
+
+        function showG3Hint() {
+            document.getElementById('g3-hint-box').classList.toggle('hidden');
+        }
+
+        function submitG3Answer(e) {
+            e.preventDefault();
+            const input = document.getElementById('g3-input');
+            const val = parseFloat(input.value.trim());
+            if (isNaN(val)) return;
+
+            input.disabled = true;
+            const q = g3Questions[g3Index];
+            const fbBox = document.getElementById('g3-feedback-box');
+            const fbTitle = document.getElementById('g3-feedback-title');
+            const fbExp = document.getElementById('g3-feedback-explanation');
+
+            fbBox.classList.remove('hidden');
+            fbExp.innerText = q.explanation;
+
+            if (Math.abs(val - q.answer) < 0.01) {
+                g3Score++;
+                fbTitle.innerText = "✅ Goed Antwoord!";
+                fbTitle.className = "font-bold text-base text-green-600 dark:text-green-400";
+                fbBox.className = "p-4 rounded-2xl border bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-800 space-y-2";
+            } else {
+                fbTitle.innerText = `❌ Helaas, het juiste antwoord was ${q.answer} ${q.unit}`;
+                fbTitle.className = "font-bold text-base text-red-600 dark:text-red-400";
+                fbBox.className = "p-4 rounded-2xl border bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 space-y-2";
+            }
+        }
+
+        function nextG3Question() {
+            g3Index++;
+            if (g3Index < g3Questions.length) {
+                showG3Question();
+            } else {
+                endG3();
+            }
+        }
+
+        function endG3() {
+            clearInterval(g3TimerInt);
+            const totalTime = ((Date.now() - g3StartTime) / 1000).toFixed(1);
+            document.getElementById('g3-card').classList.add('hidden');
+            document.getElementById('g3-results').classList.remove('hidden');
+            document.getElementById('g3-res-score').innerText = `${g3Score} / ${g3Questions.length}`;
+            document.getElementById('g3-res-time').innerText = `${totalTime}s`;
+        }
+    </script>
+</body>
+</html>
